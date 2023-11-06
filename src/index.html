@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Designer Demo</title>
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #root {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #editor {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 500px;
+            height: calc(100% - 20px);
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        
+
+        #editor-header {
+            margin: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: darkslateblue;
+            user-select: none;
+            color: white;
+        }
+
+        #editor-tools {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        #editor-tree,
+        #editor-properties {
+            /* ... */
+            flex-grow: 1;
+        }
+        .editor-resizer {
+            /* ... */
+            flex-grow: 0;
+            flex-shrink: 0;
+            height: 10px;
+            cursor: row-resize;
+            background-color: #aaa;
+        }
+
+        #editor-tree {
+            /* remove the list numbers, make the li elements background blue on hover */
+            list-style-type: none;
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            width: calc(100% - 20px);
+            /* height: calc(100% - 15px - 10px - 10px - 5px); */
+            /* height: auto;
+            min-height: 25%; */
+            background-color: darkslategrey;
+            color: white;
+        }
+
+        #editor-tree li:hover {
+            background-color: rgba(0, 0, 255, 0.25);
+        }
+
+        #editor-properties {
+            margin: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            width: calc(100% - 20px);
+            /* height: 200px; */
+            background-color: darkslategrey;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="editor">
+        <div id="editor-header">Editor Window</div>
+        <div id="editor-tools">
+            <ol id="editor-tree">
+                <li properties="random stuff lol">Demo Div</li>
+            </ol>
+            <div class="resizer"></div>
+            <div id="editor-properties"></div>
+        </div>
+    </div>
+    <div id="root">
+        <div style="background-color: brown; width: 90%; height: 90%;"></div>
+    </div>
+    <script>
+        window.onload = function () {
+            var editor = document.getElementById('editor');
+            var header = document.getElementById('editor-header');
+            var items = document.querySelectorAll('#editor-tree li');
+            var isDown = false;
+            var offset = { x: 0, y: 0 };
+            var activeItem;
+
+            header.addEventListener('mousedown', function (e) {
+                isDown = true;
+                activeItem = editor;
+                offset = {
+                    x: activeItem.offsetLeft - e.clientX,
+                    y: activeItem.offsetTop - e.clientY
+                };
+            }, true);
+
+            items.forEach(function (item) {
+                item.addEventListener('mousedown', function (e) {
+                    isDown = true;
+                    activeItem = this;
+                    this.style.position = 'absolute';
+                    offset = {
+                        x: activeItem.offsetLeft - e.clientX,
+                        y: activeItem.offsetTop - e.clientY
+                    };
+                }, true);
+            });
+
+            document.addEventListener('mouseup', function () {
+                isDown = false;
+                activeItem = null;
+            }, true);
+
+            document.addEventListener('mousemove', function (e) {
+                e.preventDefault();
+                if (isDown && activeItem) {
+                    var newLeft = e.clientX + offset.x;
+                    var newTop = e.clientY + offset.y;
+                    var parentWidth = activeItem.parentElement.offsetWidth;
+                    var parentHeight = activeItem.parentElement.offsetHeight;
+                    var activeItemWidth = activeItem.offsetWidth;
+                    var activeItemHeight = activeItem.offsetHeight;
+                    if (newLeft >= 10 && newLeft <= (parentWidth - activeItemWidth - 10)) {
+                        activeItem.style.left = newLeft + 'px';
+                    } else if (newLeft <= 10) {
+                        activeItem.style.left = '10px'
+                    } else if (newLeft >= (parentWidth - activeItemWidth - 10)) {
+                        activeItem.style.left = (parentWidth - activeItemWidth - 10) + 'px';
+                    }
+                    if (newTop >= 10 && newTop <= (parentHeight - activeItemHeight - 10)) {
+                        activeItem.style.top = newTop + 'px';
+                    } else if (newTop <= 10) {
+                        activeItem.style.top = '10px'
+                    } else if (newTop >= (parentHeight - activeItemHeight - 10)) {
+                        activeItem.style.top = (parentHeight - activeItemHeight - 10) + 'px';
+                    }
+                }
+            }, true);
+        }
+    </script>
+</body>
+
+</html>
